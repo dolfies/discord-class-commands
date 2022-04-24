@@ -53,38 +53,44 @@ CB = TypeVar('CB')
 # This is all next-level cursed
 def _generate_callback(cls: Union[Type[_Command], CB], fake: bool = False) -> CB:
     if inspect.isclass(cls) and issubclass(cls, _Command):
-        # Context menu callback relies on the annotation
+        # Context menu callback relies on the annotation, so this duplication is necessary
+        # The callback reassignation is so pyright doesn't complain that I'm redefining functions
         if fake:
 
-            async def callback(interaction: Interaction):  # type: ignore # Purposeful redefinition
+            async def fake_callback(interaction: Interaction):
                 pass
 
+            callback = fake_callback
         elif cls.__discord_app_commands_type__ is AppCommandType.user:
 
-            async def callback(interaction: Interaction, target: Union[Member, User]):  # type: ignore # Purposeful redefinition
+            async def user_callback(interaction: Interaction, target: Union[Member, User]):
                 cls.__discord_app_commands_id__ = int(interaction.data['id'])  # type: ignore # This will always be present
                 inst = cls()
                 inst.interaction = interaction
                 inst.target = target  # type: ignore # Runtime attribute assignment
                 await inst.callback()
 
+            callback = user_callback
         elif cls.__discord_app_commands_type__ is AppCommandType.message:
 
-            async def callback(interaction: Interaction, target: Message):  # type: ignore # Purposeful redefinition
+            async def message_callback(interaction: Interaction, target: Message):
                 cls.__discord_app_commands_id__ = int(interaction.data['id'])  # type: ignore # This will always be present
                 inst = cls()
                 inst.interaction = interaction
                 inst.target = target  # type: ignore # Runtime attribute assignment
                 await inst.callback()
 
+            callback = message_callback
         else:
 
-            async def callback(interaction: Interaction, **params) -> None:
+            async def slash_callback(interaction: Interaction, **params) -> None:
                 cls.__discord_app_commands_id__ = int(interaction.data['id'])  # type: ignore # This will always be present
                 inst = cls()
                 inst.interaction = interaction
                 inst.__dict__.update(params)
                 await inst.callback()
+
+            callback = slash_callback
 
         return callback  # type: ignore
 
