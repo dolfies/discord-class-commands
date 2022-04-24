@@ -56,8 +56,7 @@ if TYPE_CHECKING:
 else:
     optionbase = object
 
-
-class Option(optionbase):
+class Option(optionbase):  # type: Any
     """Represents a command parameter.
 
     Attributes
@@ -125,7 +124,7 @@ class CommandMeta(type):
 
             annotation = annotations.get(k, 'str')
             name = default = description = MISSING
-            if isinstance(v, Parameter):
+            if isinstance(v, Option):
                 default = v.default
                 description = v.description
                 name = v.name
