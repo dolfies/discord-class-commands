@@ -56,12 +56,12 @@ def _generate_callback(cls: Union[Type[_Command], CB], fake: bool = False) -> CB
         # Context menu callback relies on the annotation
         if fake:
 
-            async def callback(interaction: Interaction):
+            async def callback(interaction: Interaction):  # type: ignore # Purposeful redefinition
                 pass
 
         elif cls.__discord_app_commands_type__ is AppCommandType.user:
 
-            async def callback(interaction: Interaction, target: Union[Member, User]) -> None:
+            async def callback(interaction: Interaction, target: Union[Member, User]):  # type: ignore # Purposeful redefinition
                 cls.__discord_app_commands_id__ = int(interaction.data['id'])  # type: ignore # This will always be present
                 inst = cls()
                 inst.interaction = interaction
@@ -70,7 +70,7 @@ def _generate_callback(cls: Union[Type[_Command], CB], fake: bool = False) -> CB
 
         elif cls.__discord_app_commands_type__ is AppCommandType.message:
 
-            async def callback(interaction: Interaction, target: Message) -> None:
+            async def callback(interaction: Interaction, target: Message):  # type: ignore # Purposeful redefinition
                 cls.__discord_app_commands_id__ = int(interaction.data['id'])  # type: ignore # This will always be present
                 inst = cls()
                 inst.interaction = interaction
