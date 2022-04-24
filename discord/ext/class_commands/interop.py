@@ -25,64 +25,96 @@ DEALINGS IN THE SOFTWARE.
 from __future__ import annotations
 
 import inspect
-from typing import Any, List, Tuple, Type, TypeVar, TYPE_CHECKING, Union
+from typing import TYPE_CHECKING, Any, List, Type, TypeVar, Union
 
-from discord import AppCommandOptionType
-from discord.utils import resolve_annotation, MISSING
+from discord import AppCommandType, Member, Message, User
 from discord.app_commands.commands import (
+    ContextMenu,
     _parse_args_from_docstring,
+    _populate_autocomplete,
+    _populate_choices,
     _populate_descriptions,
     _populate_renames,
-    _populate_choices,
-    _populate_autocomplete,
     annotation_to_parameter,
 )
-from discord.app_commands.transformers import get_supported_annotation
+from discord.utils import MISSING, resolve_annotation
+
+from .commands import Command as _Command
 
 if TYPE_CHECKING:
     from discord import Interaction
-    from discord.app_commands.commands import Command, CommandParameter
+    from discord.app_commands.commands import AppCommandError, Command, CommandParameter
 
-    from .commands import Command as _Command
-    from .tree import ContextMenuCallback, CommandCallback, P, T, Group
-
-    func = Union[ContextMenuCallback, CommandCallback[Group, P, T]]
+    AppCommand = Union[Command, ContextMenu]
 
 CB = TypeVar('CB')
 
 
 # This is all next-level cursed
-
-
-def _inject_callback(cls: Union[Type[_Command], CB]) -> CB:
+def _generate_callback(cls: Union[Type[_Command], CB], fake: bool = False) -> CB:
     if inspect.isclass(cls) and issubclass(cls, _Command):
+        # Context menu callback relies on the annotation
+        if fake:
 
-        async def callback(interaction: Interaction, **params) -> None:
-            cls.__discord_app_commands_id__ = int(interaction.data['id'])  # type: ignore # This will always be an application command
-            inst = cls()
-            inst.interaction = interaction
+            async def callback(interaction: Interaction):
+                pass
 
-            inst.__dict__.update(params)
+        elif cls.__discord_app_commands_type__ is AppCommandType.user:
+
+            async def callback(interaction: Interaction, target: Union[Member, User]) -> None:
+                cls.__discord_app_commands_id__ = int(interaction.data['id'])  # type: ignore # This will always be present
+                inst = cls()
+                inst.interaction = interaction
+                inst.target = target  # type: ignore # Runtime attribute assignment
+                await inst.callback()
+
+        elif cls.__discord_app_commands_type__ is AppCommandType.message:
+
+            async def callback(interaction: Interaction, target: Message) -> None:
+                cls.__discord_app_commands_id__ = int(interaction.data['id'])  # type: ignore # This will always be present
+                inst = cls()
+                inst.interaction = interaction
+                inst.target = target  # type: ignore # Runtime attribute assignment
+                await inst.callback()
+
+        else:
+
+            async def callback(interaction: Interaction, **params) -> None:
+                cls.__discord_app_commands_id__ = int(interaction.data['id'])  # type: ignore # This will always be present
+                inst = cls()
+                inst.interaction = interaction
+                inst.__dict__.update(params)
+                await inst.callback()
 
         return callback  # type: ignore
 
     return cls  # type: ignore
 
 
-def _inject_error_handler(cls: Type[_Command], command: Command) -> None:
-    async def on_error(interaction: Interaction, error: Exception) -> None:
-        cls.__discord_app_commands_id__ = int(interaction.data['id'])  # type: ignore # This will always be an application command
+def _inject_callback(cls: Type[_Command], command: AppCommand) -> None:
+    if isinstance(command, ContextMenu):
+        return
+
+    command._callback = _generate_callback(cls)
+
+
+def _inject_error_handler(cls: Type[_Command], command: AppCommand) -> None:
+    async def on_error(interaction: Interaction, error: AppCommandError) -> None:
+        cls.__discord_app_commands_id__ = int(interaction.data['id'])  # type: ignore # This will always be present
         inst = cls()
         inst.interaction = interaction
         return await inst.on_error(error)
 
-    command.error(on_error)
+    command.on_error = on_error
 
 
-def _inject_parameters(cls: Type[_Command], command: Command) -> None:
-    params = cls.__discord_app_commands_parameters__
+def _inject_parameters(cls: Type[_Command], command: AppCommand) -> None:
+    if isinstance(command, ContextMenu):
+        return
+
+    params = cls.__discord_app_commands_params__
     cache = {}
-    globalns = {}  # I'm legitimately confused by this
+    globalns = cls.__dict__
 
     parameters: List[CommandParameter] = []
     for parameter in params:
@@ -131,9 +163,15 @@ def _inject_parameters(cls: Type[_Command], command: Command) -> None:
     command._params = result
 
 
-def _inject_class_based_information(cls: Union[Type[_Command], Any], command: Command) -> None:
+def _inject_autocomplete(cls: Type[_Command], command: AppCommand) -> None:
+    ...  # TODO: Implement autocomplete
+
+
+def _inject_class_based_information(cls: Union[Type[_Command], Any], command: AppCommand) -> None:
     if not inspect.isclass(cls) or not issubclass(cls, _Command):
         return
 
-    _inject_error_handler(cls, command)
+    _inject_callback(cls, command)
     _inject_parameters(cls, command)
+    _inject_error_handler(cls, command)
+    _inject_autocomplete(cls, command)

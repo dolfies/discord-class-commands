@@ -44,8 +44,9 @@ from discord.utils import MISSING
 
 if TYPE_CHECKING:
     from discord import AllowedMentions, File, Embed, View
+    from discord.app_commands import AppCommandError
 
-__all__ = ('Command', 'UserCommand', 'MessageCommand', 'SlashCommand', 'Parameter')
+__all__ = ('UserCommand', 'MessageCommand', 'SlashCommand', 'Parameter')
 
 CommandT = TypeVar('CommandT', bound='Command')
 _empty = inspect.Parameter.empty
@@ -75,11 +76,11 @@ class Parameter(optionbase):
 
     def __init__(
         self,
+        default: Any = MISSING,
+        name: str = MISSING,
         description: str = MISSING,
         *,
         autocomplete: bool = False,
-        default: Any = MISSING,
-        name: str = MISSING,
     ) -> None:
         self.description = description
         self.default = default
@@ -98,13 +99,14 @@ class ParameterData(inspect.Parameter):
 
 
 class CommandMeta(type):
-    __discord_app_commands_type__: AppCommandType
     __discord_app_commands_id__: int = MISSING
-    __discord_app_commands_parameters__: List[ParameterData]
-    __discord_app_commands_param_description__: Dict[str, str]
-    __discord_app_commands_param_rename__: Dict[str, str]
-    __discord_app_commands_param_choices__: Dict[str, Any]
-    __discord_app_commands_param_autocomplete__: Dict[str, Any]
+    if TYPE_CHECKING:
+        __discord_app_commands_type__: AppCommandType
+        __discord_app_commands_params__: List[ParameterData]
+        __discord_app_commands_param_description__: Dict[str, str]
+        __discord_app_commands_param_rename__: Dict[str, str]
+        __discord_app_commands_param_choices__: Dict[str, Any]
+        __discord_app_commands_param_autocomplete__: Dict[str, Any]
 
     def __new__(
         cls,
@@ -113,12 +115,12 @@ class CommandMeta(type):
         attrs: Dict[str, Any],
     ):
         arguments = attrs['__discord_app_commands_params__'] = []
-        descriptions = attrs['__discord_app_commands_param_description__'] = {}
-        renames = attrs['__discord_app_commands_param_rename__'] = {}
-        annotations = attrs.get('__annotations__', {})
+        descriptions = {}
+        renames = {}
 
+        annotations = attrs.get('__annotations__', {})
         for k, v in attrs.items():
-            if k.startswith('_') or type(v) in {FunctionType, classmethod, staticmethod}:
+            if k.startswith('_') or k == 'interaction' or type(v) in {FunctionType, classmethod, staticmethod}:
                 continue
 
             annotation = annotations.get(k, 'str')
@@ -138,6 +140,11 @@ class CommandMeta(type):
 
         if type in {AppCommandType.user, AppCommandType.message} and len(arguments) > 1:
             raise TypeError('Context menu commands must take exactly one argument')
+
+        if renames:
+            attrs['__discord_app_commands_param_rename__'] = renames
+        if descriptions:
+            attrs['__discord_app_commands_param_description__'] = descriptions
 
         return super().__new__(cls, classname, bases, attrs)
 
@@ -178,7 +185,7 @@ class Command(metaclass=CommandMeta):
         """
         pass
 
-    async def on_error(self, exception: Exception) -> None:
+    async def on_error(self, exception: AppCommandError) -> None:
         """|coro|
 
         This method is called whenever an exception occurs in :meth:`.autocomplete` or :meth:`.callback`.
@@ -188,7 +195,7 @@ class Command(metaclass=CommandMeta):
 
         Parameters
         -----------
-        exception: :class:`Exception`
+        exception: :class:`~discord.app_commands.AppCommandError`
             The exception that was thrown.
         """
         traceback.print_exception(type(exception), exception, exception.__traceback__)
@@ -273,7 +280,7 @@ class Command(metaclass=CommandMeta):
         interaction = self.interaction
 
         if interaction.is_expired():
-            return await interaction.channel.send(  # type: ignore # This should always support send() in this context
+            return await interaction.channel.send(  # type: ignore # Should always support send in this context
                 content=content,
                 tts=tts,
                 embed=embed,
