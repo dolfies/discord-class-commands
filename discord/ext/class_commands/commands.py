@@ -46,7 +46,7 @@ if TYPE_CHECKING:
     from discord import AllowedMentions, File, Embed, View
     from discord.app_commands import AppCommandError
 
-__all__ = ('UserCommand', 'MessageCommand', 'SlashCommand', 'Parameter')
+__all__ = ('UserCommand', 'MessageCommand', 'SlashCommand', 'Option')
 
 CommandT = TypeVar('CommandT', bound='Command')
 _empty = inspect.Parameter.empty
@@ -57,7 +57,7 @@ else:
     optionbase = object
 
 
-class Parameter(optionbase):
+class Option(optionbase):
     """Represents a command parameter.
 
     Attributes
