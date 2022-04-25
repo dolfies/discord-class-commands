@@ -40,11 +40,16 @@ from typing import (
     Generic,
 )
 from discord import AppCommandType, Interaction, Member, Message, User
+from discord.app_commands.commands import _shorten, Command as _Command, ContextMenu
 from discord.utils import MISSING
 
+from .interop import _generate_callback, _inject_class_based_information
+
 if TYPE_CHECKING:
-    from discord import AllowedMentions, File, Embed, View
-    from discord.app_commands import AppCommandError, Choice
+    from discord import AllowedMentions, File, Embed
+    from discord.ui import View
+    from discord.abc import Snowflake
+    from discord.app_commands import AppCommandError, Choice, Group
 
 __all__ = ('UserCommand', 'MessageCommand', 'SlashCommand', 'Option')
 
@@ -100,8 +105,8 @@ class ParameterData(inspect.Parameter):
 
 class CommandMeta(type):
     __discord_app_commands_id__: int = MISSING
+    __discord_app_commands_type__: AppCommandType = MISSING
     if TYPE_CHECKING:
-        __discord_app_commands_type__: AppCommandType
         __discord_app_commands_params__: List[ParameterData]
         __discord_app_commands_param_description__: Dict[str, str]
         __discord_app_commands_param_rename__: Dict[str, str]
@@ -114,7 +119,28 @@ class CommandMeta(type):
         classname: str,
         bases: tuple,
         attrs: Dict[str, Any],
-    ):
+        *,
+        name: str = MISSING,
+        description: str = MISSING,
+        guild: Optional[Snowflake] = MISSING,
+        guilds: List[Snowflake] = MISSING,
+        parent: Optional[Group] = MISSING,
+    ) -> Union[_Command, ContextMenu]:
+        if not bases or bases == (Command, Generic):  # This metaclass should only operate on subclasses
+            return super().__new__(cls, classname, bases, attrs)  # type: ignore
+
+        if guild is not MISSING and guilds is not MISSING:
+            raise TypeError('Cannot mix guild and guilds keyword arguments')
+
+        if not guild:
+            if not guilds:
+                guild_ids = None
+            else:
+                guild_ids = [g.id for g in guilds]
+        else:
+            guild_ids = [guild.id] if guild else None
+
+
         arguments = attrs['__discord_app_commands_params__'] = []
         descriptions = {}
         renames = {}
@@ -127,11 +153,11 @@ class CommandMeta(type):
 
             annotation = annotations.get(k, 'str')
             autocomplete = False
-            name = default = description = MISSING
+            _name = default = description = MISSING
             if isinstance(v, Option):
                 default = v.default
                 description = v.description
-                name = v.name
+                _name = v.name
                 autocomplete = v.autocomplete
             elif v is not MISSING:
                 default = v
@@ -139,8 +165,8 @@ class CommandMeta(type):
             arguments.append(ParameterData(k, default, annotation))
             if description is not MISSING:
                 descriptions[k] = description
-            if name is not MISSING:
-                renames[k] = name
+            if _name is not MISSING:
+                renames[k] = _name
             if autocomplete:
                 autocompleted.append(k)
 
@@ -154,7 +180,35 @@ class CommandMeta(type):
         if autocompleted:
             attrs['__discord_app_commands_param_autocompleted__'] = autocompleted
 
-        return super().__new__(cls, classname, bases, attrs)
+        # After all of that, we turn the class into a Command
+        sub = super().__new__(cls, classname, bases, attrs)
+
+        if sub.__discord_app_commands_type__ is AppCommandType.chat_input:
+            if description is MISSING:
+                docstring = attrs.get('__doc__')
+                if docstring is None:
+                    description = '…'
+                else:
+                    description = _shorten(docstring)
+
+            command = _Command(
+                name=name if name is not MISSING else classname,
+                description=description,
+                callback=_generate_callback(sub, fake=True),  # type: ignore # The cls type is correct
+                parent=parent or None,
+                guild_ids=guild_ids,
+            )
+        else:
+            if description or parent:
+                raise TypeError('Context menu commands cannot have a description or parent')
+            command = ContextMenu(
+                name=name if name is not MISSING else classname,
+                callback=_generate_callback(sub),  # type: ignore # The cls type is correct
+                guild_ids=guild_ids,
+            )
+
+        _inject_class_based_information(sub, command)
+        return command
 
     @property
     def id(cls) -> int:
