@@ -49,7 +49,7 @@ if TYPE_CHECKING:
     from discord import AllowedMentions, File, Embed
     from discord.ui import View
     from discord.abc import Snowflake
-    from discord.app_commands import AppCommandError, Choice, Group
+    from discord.app_commands.commands import AppCommandError, Choice, ChoiceT, Group
 
 __all__ = ('UserCommand', 'MessageCommand', 'SlashCommand', 'Option')
 
@@ -67,14 +67,25 @@ class Option(optionbase):  # type: Any
 
     Attributes
     ----------
-    autocomplete: :class:`bool`
-        Whether or not the parameter should be autocompleted.
     default: :class:`Any`
         The default value for the option if the option is optional.
+    name: :class:`str`
+        The overriden name of the option.
     description: :class:`str`
         The description of the option.
-    name: :class:`str`
-        The name of the option.
+
+        .. note::
+            If not explicitly overrided here, the description is parsed
+            from the class docstring. Else, it defaults to "…".
+    autocomplete: :class:`bool`
+        Whether or not the parameter should be autocompleted.
+    choices: List[:class:`~discord.app_commands.Choice`]
+        The choices for the parameter.
+
+        .. note::
+            This is not the only way to provide choices to a command.
+            There are two more ergonomic ways of doing this, using a
+            :obj:`typing.Literal` annotation or a :class:`enum.Enum`.
     """
 
     __slots__ = ('autocomplete', 'default', 'description', 'name')
@@ -86,11 +97,13 @@ class Option(optionbase):  # type: Any
         description: str = MISSING,
         *,
         autocomplete: bool = False,
+        choices: List[Choice[ChoiceT]] = MISSING,
     ) -> None:
         self.description = description
         self.default = default
         self.autocomplete = autocomplete
         self.name = name
+        self.choices = choices
 
 
 class ParameterData(inspect.Parameter):
@@ -110,7 +123,7 @@ class CommandMeta(type):
         __discord_app_commands_params__: List[ParameterData]
         __discord_app_commands_param_description__: Dict[str, str]
         __discord_app_commands_param_rename__: Dict[str, str]
-        __discord_app_commands_param_choices__: Dict[str, Any]
+        __discord_app_commands_param_choices__: Dict[str, List[Choice]]
         __discord_app_commands_param_autocompleted__: List[str]
         __discord_app_commands_param_autocomplete__: Dict[str, Any]
 
@@ -144,6 +157,7 @@ class CommandMeta(type):
         arguments = attrs['__discord_app_commands_params__'] = []
         descriptions = {}
         renames = {}
+        extra_choices = {}
         autocompleted = []
 
         annotations = attrs.get('__annotations__', {})
@@ -153,20 +167,23 @@ class CommandMeta(type):
 
             annotation = annotations.get(k, 'str')
             autocomplete = False
-            _name = default = description = MISSING
+            _name = default = description = choices = MISSING
             if isinstance(v, Option):
+                _name = v.name
                 default = v.default
                 description = v.description
-                _name = v.name
+                choices = v.choices
                 autocomplete = v.autocomplete
             elif v is not MISSING:
                 default = v
 
             arguments.append(ParameterData(k, default, annotation))
-            if description is not MISSING:
-                descriptions[k] = description
             if _name is not MISSING:
                 renames[k] = _name
+            if description is not MISSING:
+                descriptions[k] = description
+            if choices is not MISSING:
+                extra_choices[k] = choices
             if autocomplete:
                 autocompleted.append(k)
 
@@ -177,6 +194,8 @@ class CommandMeta(type):
             attrs['__discord_app_commands_param_rename__'] = renames
         if descriptions:
             attrs['__discord_app_commands_param_description__'] = descriptions
+        if extra_choices:
+            attrs['__discord_app_commands_param_choices__'] = extra_choices
         if autocompleted:
             attrs['__discord_app_commands_param_autocompleted__'] = autocompleted
 
@@ -414,7 +433,7 @@ class SlashCommand(Command, Generic[CommandT]):
 
     __discord_app_commands_type__ = AppCommandType.chat_input
 
-    async def autocomplete(self, focused: str) -> List[Choice]:
+    async def autocomplete(self, focused: str) -> List[Choice[ChoiceT]]:
         """|coro|
 
         This method is called when an autocomplete interaction is triggered.
