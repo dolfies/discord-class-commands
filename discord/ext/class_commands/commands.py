@@ -44,7 +44,7 @@ from discord.utils import MISSING
 
 if TYPE_CHECKING:
     from discord import AllowedMentions, File, Embed, View
-    from discord.app_commands import AppCommandError
+    from discord.app_commands import AppCommandError, Choice
 
 __all__ = ('UserCommand', 'MessageCommand', 'SlashCommand', 'Option')
 
@@ -55,6 +55,7 @@ if TYPE_CHECKING:
     optionbase = Any
 else:
     optionbase = object
+
 
 class Option(optionbase):  # type: Any
     """Represents a command parameter.
@@ -105,6 +106,7 @@ class CommandMeta(type):
         __discord_app_commands_param_description__: Dict[str, str]
         __discord_app_commands_param_rename__: Dict[str, str]
         __discord_app_commands_param_choices__: Dict[str, Any]
+        __discord_app_commands_param_autocompleted__: List[str]
         __discord_app_commands_param_autocomplete__: Dict[str, Any]
 
     def __new__(
@@ -116,6 +118,7 @@ class CommandMeta(type):
         arguments = attrs['__discord_app_commands_params__'] = []
         descriptions = {}
         renames = {}
+        autocompleted = []
 
         annotations = attrs.get('__annotations__', {})
         for k, v in attrs.items():
@@ -123,11 +126,13 @@ class CommandMeta(type):
                 continue
 
             annotation = annotations.get(k, 'str')
+            autocomplete = False
             name = default = description = MISSING
             if isinstance(v, Option):
                 default = v.default
                 description = v.description
                 name = v.name
+                autocomplete = v.autocomplete
             elif v is not MISSING:
                 default = v
 
@@ -136,6 +141,8 @@ class CommandMeta(type):
                 descriptions[k] = description
             if name is not MISSING:
                 renames[k] = name
+            if autocomplete:
+                autocompleted.append(k)
 
         if type in {AppCommandType.user, AppCommandType.message} and len(arguments) > 1:
             raise TypeError('Context menu commands must take exactly one argument')
@@ -144,6 +151,8 @@ class CommandMeta(type):
             attrs['__discord_app_commands_param_rename__'] = renames
         if descriptions:
             attrs['__discord_app_commands_param_description__'] = descriptions
+        if autocompleted:
+            attrs['__discord_app_commands_param_autocompleted__'] = autocompleted
 
         return super().__new__(cls, classname, bases, attrs)
 
@@ -180,6 +189,7 @@ class Command(metaclass=CommandMeta):
         """|coro|
 
         This method is called when the command is used.
+
         All the parameters, :attr:`interaction`, and :attr:`id` will be available at this point.
         """
         pass
@@ -191,6 +201,8 @@ class Command(metaclass=CommandMeta):
 
         By default this prints to :data:`sys.stderr` however it could be
         overridden to have a different implementation.
+
+        :attr:`interaction` and :attr:`id` will be available at this point.
 
         Parameters
         -----------
@@ -220,7 +232,7 @@ class Command(metaclass=CommandMeta):
 
         This does one of the following:
 
-        - :meth:`discord.InteractionResponse.send_message` if no response has been given.
+        - :meth:`~discord.InteractionResponse.send_message` if no response has been given.
         - A followup message if a response has been given.
         - Regular send if the interaction has expired
 
@@ -348,12 +360,32 @@ class SlashCommand(Command, Generic[CommandT]):
 
     __discord_app_commands_type__ = AppCommandType.chat_input
 
-    async def autocomplete(self):  # TODO
+    async def autocomplete(self, focused: str) -> List[Choice]:
         """|coro|
 
         This method is called when an autocomplete interaction is triggered.
+
+        Some of the parameters, :attr:`interaction`, and :attr:`id` will be available at this point.
+
+        .. note::
+
+            In autocomplete interactions, parameter values might not be validated or filled in. Discord
+            does not send the resolved data as well, so this means that certain fields end up just as IDs
+            rather than the resolved data. In these cases, a :class:`~discord.Object` is returned instead.
+
+            This is a Discord limitation.
+
+        Parameters
+        -----------
+        focused: :class:`str`
+            The name of the option that is currently focused.
+
+        Returns
+        --------
+        List[:class:`~discord.app_commands.Choice`]
+            A list of choices to display.
         """
-        pass
+        return []
 
 
 class UserCommand(Command, Generic[CommandT]):
@@ -368,7 +400,7 @@ class UserCommand(Command, Generic[CommandT]):
 
     Attributes
     -----------
-    target: Union[:class:`~discord.BaseUser`, :class:`~discord.Member`]
+    target: Union[:class:`~discord.abc.User`, :class:`~discord.Member`]
         The user that the command is executed on.
     """
 
@@ -388,7 +420,7 @@ class MessageCommand(Command, Generic[CommandT]):
 
     Attributes
     -----------
-    target: :class:`Message`
+    target: :class:`~discord.Message`
         The message that the command is executed on.
     """
 

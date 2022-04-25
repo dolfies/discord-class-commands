@@ -43,7 +43,7 @@ from .commands import Command as _Command
 
 if TYPE_CHECKING:
     from discord import Interaction
-    from discord.app_commands.commands import AppCommandError, Command, CommandParameter
+    from discord.app_commands.commands import AppCommandError, Command, CommandParameter, Choice
 
     AppCommand = Union[Command, ContextMenu]
 
@@ -170,7 +170,26 @@ def _inject_parameters(cls: Type[_Command], command: AppCommand) -> None:
 
 
 def _inject_autocomplete(cls: Type[_Command], command: AppCommand) -> None:
-    ...  # TODO: Implement autocomplete
+    if isinstance(command, ContextMenu):
+        return
+
+    try:
+        autocompleted = cls.__discord_app_commands_param_autocompleted__
+    except AttributeError:
+        return
+
+    async def autocomplete(interaction: Interaction, current: Any) -> List[Choice]:
+        cls.__discord_app_commands_id__ = int(interaction.data['id'])  # type: ignore # This will always be present
+        inst = cls()
+        inst.interaction = interaction
+        inst.__dict__.update(interaction.namespace.__dict__)
+
+        for k, v in inst.__dict__.items():
+            if v == current:
+                return await inst.autocomplete(k)  # type: ignore # Only slash commands can have autocomplete
+        return []
+
+    _populate_autocomplete(command._params, {k: autocomplete for k in autocompleted})
 
 
 def _inject_class_based_information(cls: Union[Type[_Command], Any], command: AppCommand) -> None:
@@ -179,5 +198,5 @@ def _inject_class_based_information(cls: Union[Type[_Command], Any], command: Ap
 
     _inject_callback(cls, command)
     _inject_parameters(cls, command)
-    _inject_error_handler(cls, command)
     _inject_autocomplete(cls, command)
+    _inject_error_handler(cls, command)
