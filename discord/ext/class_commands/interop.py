@@ -62,7 +62,6 @@ def _generate_callback(cls: Type[_Command], fake: bool = False) -> Any:
     elif cls.__discord_app_commands_type__ is AppCommandType.user:
 
         async def user_callback(interaction: Interaction, target: Union[Member, User]):
-            cls.__discord_app_commands_id__ = int(interaction.data['id'])  # type: ignore # This will always be present
             inst = cls()
             inst.interaction = interaction
             inst.target = target  # type: ignore # Runtime attribute assignment
@@ -72,7 +71,6 @@ def _generate_callback(cls: Type[_Command], fake: bool = False) -> Any:
     elif cls.__discord_app_commands_type__ is AppCommandType.message:
 
         async def message_callback(interaction: Interaction, target: Message):
-            cls.__discord_app_commands_id__ = int(interaction.data['id'])  # type: ignore # This will always be present
             inst = cls()
             inst.interaction = interaction
             inst.target = target  # type: ignore # Runtime attribute assignment
@@ -82,7 +80,6 @@ def _generate_callback(cls: Type[_Command], fake: bool = False) -> Any:
     else:
 
         async def slash_callback(interaction: Interaction, **params) -> None:
-            cls.__discord_app_commands_id__ = int(interaction.data['id'])  # type: ignore # This will always be present
             inst = cls()
             inst.interaction = interaction
             inst.__dict__.update(params)
@@ -102,7 +99,6 @@ def _inject_callback(cls: Type[_Command], command: AppCommand) -> None:
 
 def _inject_error_handler(cls: Type[_Command], command: AppCommand) -> None:
     async def on_error(interaction: Interaction, error: AppCommandError) -> None:
-        cls.__discord_app_commands_id__ = int(interaction.data['id'])  # type: ignore # This will always be present
         inst = cls()
         inst.interaction = interaction
         return await inst.on_error(error)
@@ -175,7 +171,6 @@ def _inject_autocomplete(cls: Type[_Command], command: AppCommand) -> None:
         return
 
     async def autocomplete(interaction: Interaction, current: Any) -> List[Choice]:
-        cls.__discord_app_commands_id__ = int(interaction.data['id'])  # type: ignore # This will always be present
         inst = cls()
         inst.interaction = interaction
         inst.__dict__.update(interaction.namespace.__dict__)

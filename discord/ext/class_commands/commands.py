@@ -117,7 +117,6 @@ class ParameterData(inspect.Parameter):
 
 
 class CommandMeta(type):
-    __discord_app_commands_id__: int = MISSING
     __discord_app_commands_type__: AppCommandType = MISSING
     if TYPE_CHECKING:
         __discord_app_commands_params__: List[ParameterData]
@@ -228,11 +227,6 @@ class CommandMeta(type):
 
         _inject_class_based_information(sub, command)
         return command
-
-    @property
-    def id(cls) -> int:
-        """:class:`int`: Returns the command's ID. This is only available after an instance has been created."""
-        return cls.__discord_app_commands_id__
 
     @property
     def type(cls) -> AppCommandType:
