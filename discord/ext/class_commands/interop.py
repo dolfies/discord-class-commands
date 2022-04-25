@@ -106,6 +106,7 @@ def _inject_error_handler(cls: Type[_Command], command: AppCommand) -> None:
     command.on_error = on_error
 
 
+# Most of this is copied from upstream (discord/app_commands/commands.py)
 def _inject_parameters(cls: Type[_Command], command: AppCommand) -> None:
     if isinstance(command, ContextMenu):
         return
