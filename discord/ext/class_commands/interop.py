@@ -113,7 +113,7 @@ def _inject_parameters(cls: Type[_Command], command: AppCommand) -> None:
 
     params = cls.__discord_app_commands_params__
     cache = {}
-    globalns = cls.__dict__
+    globalns = cls.callback.__globals__
 
     parameters: List[CommandParameter] = []
     for parameter in params:
