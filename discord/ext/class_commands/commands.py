@@ -57,12 +57,12 @@ CommandT = TypeVar('CommandT', bound='Command')
 _empty = inspect.Parameter.empty
 
 if TYPE_CHECKING:
-    optionbase = Any
+    base = Any
 else:
-    optionbase = object
+    base = object
 
 
-class Option(optionbase):  # type: Any
+class Option(base):
     """Represents a command parameter.
 
     Attributes
@@ -88,7 +88,7 @@ class Option(optionbase):  # type: Any
             :obj:`typing.Literal` annotation or a :class:`enum.Enum`.
     """
 
-    __slots__ = ('autocomplete', 'default', 'description', 'name')
+    __slots__ = ('autocomplete', 'default', 'description', 'name', 'choices')
 
     def __init__(
         self,
@@ -116,7 +116,7 @@ class ParameterData(inspect.Parameter):
         )
 
 
-class CommandMeta(type):
+class _CommandMeta(type):
     __discord_app_commands_type__: AppCommandType = MISSING
     if TYPE_CHECKING:
         __discord_app_commands_params__: List[ParameterData]
@@ -151,7 +151,6 @@ class CommandMeta(type):
                 guild_ids = [g.id for g in guilds]
         else:
             guild_ids = [guild.id] if guild else None
-
 
         arguments = attrs['__discord_app_commands_params__'] = []
         descriptions = {}
@@ -232,6 +231,30 @@ class CommandMeta(type):
     def type(cls) -> AppCommandType:
         """:class:`~discord.AppCommandType`: Returns the command's type."""
         return cls.__discord_app_commands_type__
+
+
+if TYPE_CHECKING:
+    meta = _Command
+else:
+    meta = _CommandMeta
+
+
+class CommandMeta(meta, type):
+    def __new__(
+        cls,
+        classname: str,
+        bases: tuple,
+        attrs: Dict[str, Any],
+        *,
+        name: str = MISSING,
+        description: str = MISSING,
+        guild: Optional[Snowflake] = MISSING,
+        guilds: List[Snowflake] = MISSING,
+        parent: Optional[Group] = MISSING,
+    ):
+        return super().__new__(
+            cls, classname, bases, attrs, name=name, description=description, guild=guild, guilds=guilds, parent=parent
+        )
 
 
 class Command(metaclass=CommandMeta):
