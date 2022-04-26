@@ -118,13 +118,6 @@ class ParameterData(inspect.Parameter):
 
 class _CommandMeta(type):
     __discord_app_commands_type__: AppCommandType = MISSING
-    if TYPE_CHECKING:
-        __discord_app_commands_params__: List[ParameterData]
-        __discord_app_commands_param_description__: Dict[str, str]
-        __discord_app_commands_param_rename__: Dict[str, str]
-        __discord_app_commands_param_choices__: Dict[str, List[Choice]]
-        __discord_app_commands_param_autocompleted__: List[str]
-        __discord_app_commands_param_autocomplete__: Dict[str, Any]
 
     def __new__(
         cls,
@@ -240,6 +233,15 @@ else:
 
 
 class CommandMeta(meta, type):
+    if TYPE_CHECKING:
+        __discord_app_commands_type__: AppCommandType
+        __discord_app_commands_params__: List[ParameterData]
+        __discord_app_commands_param_description__: Dict[str, str]
+        __discord_app_commands_param_rename__: Dict[str, str]
+        __discord_app_commands_param_choices__: Dict[str, List[Choice]]
+        __discord_app_commands_param_autocompleted__: List[str]
+        __discord_app_commands_param_autocomplete__: Dict[str, Any]
+
     def __new__(
         cls,
         classname: str,
@@ -255,6 +257,11 @@ class CommandMeta(meta, type):
         return super().__new__(
             cls, classname, bases, attrs, name=name, description=description, guild=guild, guilds=guilds, parent=parent
         )
+
+    @property
+    def type(cls) -> AppCommandType:
+        """:class:`~discord.AppCommandType`: Returns the command's type."""
+        return super().type  # type: ignore # Exists at runtime
 
 
 class Command(metaclass=CommandMeta):
