@@ -220,11 +220,6 @@ class _CommandMeta(type):
         _inject_class_based_information(sub, command)
         return command
 
-    @property
-    def type(cls) -> AppCommandType:
-        """:class:`~discord.AppCommandType`: Returns the command's type."""
-        return cls.__discord_app_commands_type__
-
 
 if TYPE_CHECKING:
     meta = _Command
@@ -261,7 +256,7 @@ class CommandMeta(meta, type):
     @property
     def type(cls) -> AppCommandType:
         """:class:`~discord.AppCommandType`: Returns the command's type."""
-        return super().type  # type: ignore # Exists at runtime
+        return cls.__discord_app_commands_type__
 
 
 class Command(metaclass=CommandMeta):
