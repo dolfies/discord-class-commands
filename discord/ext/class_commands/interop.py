@@ -113,7 +113,7 @@ def _inject_parameters(cls: Type[_Command], command: AppCommand) -> None:
 
     params = cls.__discord_app_commands_params__
     cache = {}
-    globalns = cls.callback.__globals__
+    globalns = cls.__globals__
 
     parameters: List[CommandParameter] = []
     for parameter in params:
@@ -189,3 +189,4 @@ def _inject_class_based_information(cls: Union[Type[_Command], Any], command: Ap
     _inject_parameters(cls, command)
     _inject_autocomplete(cls, command)
     _inject_error_handler(cls, command)
+    command.cls = cls  # type: ignore # Runtime attribute assignment

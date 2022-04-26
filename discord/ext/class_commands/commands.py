@@ -145,6 +145,7 @@ class _CommandMeta(type):
         else:
             guild_ids = [guild.id] if guild else None
 
+        attrs['__globals__'] = globals()
         arguments = attrs['__discord_app_commands_params__'] = []
         descriptions = {}
         renames = {}
@@ -236,6 +237,7 @@ class CommandMeta(meta, type):
         __discord_app_commands_param_choices__: Dict[str, List[Choice]]
         __discord_app_commands_param_autocompleted__: List[str]
         __discord_app_commands_param_autocomplete__: Dict[str, Any]
+        __globals__: Dict[str, Any]
 
     def __new__(
         cls,
