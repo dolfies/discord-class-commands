@@ -24,6 +24,7 @@ DEALINGS IN THE SOFTWARE.
 
 from __future__ import annotations
 
+import sys
 from typing import TYPE_CHECKING, Any, List, Type, TypeVar, Union
 
 from discord import AppCommandType, Member, Message, User
@@ -40,7 +41,7 @@ from discord.utils import MISSING, resolve_annotation
 
 if TYPE_CHECKING:
     from discord import Interaction
-    from discord.app_commands.commands import AppCommandError, Command, CommandParameter, Choice
+    from discord.app_commands.commands import AppCommandError, Choice, Command, CommandParameter
 
     from .commands import Command as _Command
 
@@ -113,7 +114,7 @@ def _inject_parameters(cls: Type[_Command], command: AppCommand) -> None:
 
     params = cls.__discord_app_commands_params__
     cache = {}
-    globalns = cls.__globals__
+    globalns = vars(sys.modules[cls.__module__])  # I don't want to talk about it
 
     parameters: List[CommandParameter] = []
     for parameter in params:
