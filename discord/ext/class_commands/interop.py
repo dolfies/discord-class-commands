@@ -37,7 +37,7 @@ from discord.app_commands.commands import (
     _populate_renames,
     annotation_to_parameter,
 )
-from discord.utils import MISSING, resolve_annotation
+from discord.utils import MISSING, resolve_annotation, maybe_coroutine
 
 if TYPE_CHECKING:
     from discord import Interaction
@@ -105,6 +105,15 @@ def _inject_error_handler(cls: Type[_Command], command: AppCommand) -> None:
         return await inst.on_error(error)
 
     command.on_error = on_error
+
+
+def _inject_check(cls: Type[_Command], command: AppCommand) -> None:
+    async def check(interaction: Interaction) -> bool:
+        inst = cls()
+        inst.interaction = interaction
+        return await maybe_coroutine(inst.check)
+
+    command.checks.append(check)
 
 
 # Most of this is copied from upstream (discord/app_commands/commands.py)
@@ -200,4 +209,5 @@ def _inject_class_based_information(cls: Union[Type[_Command], Any], command: Ap
     _inject_parameters(cls, command)
     _inject_autocomplete(cls, command)
     _inject_error_handler(cls, command)
+    _inject_check(cls, command)
     command.cls = cls  # type: ignore # Runtime attribute assignment

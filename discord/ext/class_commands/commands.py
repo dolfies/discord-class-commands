@@ -243,9 +243,21 @@ class Command(metaclass=CommandMeta):
 
         This method is called when the command is used.
 
-        All the parameters, :attr:`interaction`, and :attr:`id` will be available at this point.
+        All the parameters and :attr:`interaction` will be available at this point.
         """
         pass
+
+    async def check(self) -> bool:
+        r"""|maybecoro|
+
+        This method is called before the callback is called.
+
+        If it returns a ``False``\-like value then during invocation a
+        :exc:`~discord.app_commands.CheckFailure` exception is raised and sent to the appropriate error handlers.
+
+        :attr:`interaction` will be available at this point.
+        """
+        return True
 
     async def on_error(self, exception: AppCommandError) -> None:
         """|coro|
@@ -255,7 +267,7 @@ class Command(metaclass=CommandMeta):
         By default this prints to :data:`sys.stderr` however it could be
         overridden to have a different implementation.
 
-        :attr:`interaction` and :attr:`id` will be available at this point.
+        :attr:`interaction` will be available at this point.
 
         Parameters
         -----------
