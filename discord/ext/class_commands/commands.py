@@ -56,8 +56,21 @@ __all__ = ('UserCommand', 'MessageCommand', 'SlashCommand')
 CommandT = TypeVar('CommandT', bound='Command')
 
 
-class _CommandMeta(type):
+if TYPE_CHECKING:
+    meta = _Command
+else:
+    meta = object
+
+
+class CommandMeta(type, meta):
     __discord_app_commands_type__: AppCommandType = MISSING
+    if TYPE_CHECKING:
+        __discord_app_commands_params__: List[ParameterData]
+        __discord_app_commands_param_description__: Dict[str, str]
+        __discord_app_commands_param_rename__: Dict[str, str]
+        __discord_app_commands_param_choices__: Dict[str, List[Choice]]
+        __discord_app_commands_param_autocompleted__: List[str]
+        __discord_app_commands_param_autocomplete__: Dict[str, Any]
 
     def __new__(
         cls,
@@ -72,7 +85,7 @@ class _CommandMeta(type):
         parent: Optional[Group] = MISSING,
     ) -> Union[_Command, ContextMenu]:
         if not bases or bases == (Command, Generic):  # This metaclass should only operate on subclasses
-            return super().__new__(cls, classname, bases, attrs)  # type: ignore
+            return super().__new__(cls, classname, bases, attrs)
 
         if guild is not MISSING and guilds is not MISSING:
             raise TypeError('Cannot mix guild and guilds keyword arguments')
@@ -159,39 +172,6 @@ class _CommandMeta(type):
 
         _inject_class_based_information(sub, command)
         return command
-
-
-if TYPE_CHECKING:
-    meta = _Command
-else:
-    meta = _CommandMeta
-
-
-class CommandMeta(meta, type):
-    if TYPE_CHECKING:
-        __discord_app_commands_type__: AppCommandType
-        __discord_app_commands_params__: List[ParameterData]
-        __discord_app_commands_param_description__: Dict[str, str]
-        __discord_app_commands_param_rename__: Dict[str, str]
-        __discord_app_commands_param_choices__: Dict[str, List[Choice]]
-        __discord_app_commands_param_autocompleted__: List[str]
-        __discord_app_commands_param_autocomplete__: Dict[str, Any]
-
-    def __new__(
-        cls,
-        classname: str,
-        bases: tuple,
-        attrs: Dict[str, Any],
-        *,
-        name: str = MISSING,
-        description: str = MISSING,
-        guild: Optional[Snowflake] = MISSING,
-        guilds: Sequence[Snowflake] = MISSING,
-        parent: Optional[Group] = MISSING,
-    ):
-        return super().__new__(
-            cls, classname, bases, attrs, name=name, description=description, guild=guild, guilds=guilds, parent=parent
-        )
 
     @property
     def type(cls) -> AppCommandType:
