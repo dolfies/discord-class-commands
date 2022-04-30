@@ -102,7 +102,7 @@ def _inject_error_handler(cls: Type[_Command], command: AppCommand) -> None:
     async def on_error(interaction: Interaction, error: AppCommandError) -> None:
         inst = cls()
         inst.interaction = interaction
-        return await inst.on_error(error)
+        return await maybe_coroutine(inst.on_error, error)
 
     command.on_error = on_error
 

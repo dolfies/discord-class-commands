@@ -260,7 +260,7 @@ class Command(metaclass=CommandMeta):
         return True
 
     async def on_error(self, exception: AppCommandError) -> None:
-        """|coro|
+        """|maybecoro|
 
         This method is called whenever an exception occurs in :meth:`.autocomplete` or :meth:`.callback`.
 
