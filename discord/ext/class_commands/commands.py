@@ -68,7 +68,7 @@ class _CommandMeta(type):
         name: str = MISSING,
         description: str = MISSING,
         guild: Optional[Snowflake] = MISSING,
-        guilds: List[Snowflake] = MISSING,
+        guilds: Sequence[Snowflake] = MISSING,
         parent: Optional[Group] = MISSING,
     ) -> Union[_Command, ContextMenu]:
         if not bases or bases == (Command, Generic):  # This metaclass should only operate on subclasses
@@ -186,7 +186,7 @@ class CommandMeta(meta, type):
         name: str = MISSING,
         description: str = MISSING,
         guild: Optional[Snowflake] = MISSING,
-        guilds: List[Snowflake] = MISSING,
+        guilds: Sequence[Snowflake] = MISSING,
         parent: Optional[Group] = MISSING,
     ):
         return super().__new__(
