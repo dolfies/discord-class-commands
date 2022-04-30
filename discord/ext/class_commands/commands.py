@@ -46,7 +46,7 @@ from .interop import _generate_callback, _inject_class_based_information
 from .option import _Option, ParameterData
 
 if TYPE_CHECKING:
-    from discord import AllowedMentions, File, Embed
+    from discord import AllowedMentions, File, Embed, Permissions
     from discord.ui import View
     from discord.abc import Snowflake
     from discord.app_commands.commands import AppCommandError, Choice, ChoiceT, Group
@@ -71,6 +71,8 @@ class CommandMeta(type, meta):
         __discord_app_commands_param_choices__: Dict[str, List[Choice]]
         __discord_app_commands_param_autocompleted__: List[str]
         __discord_app_commands_param_autocomplete__: Dict[str, Any]
+        __discord_app_commands_guild_only__: bool
+        __discord_app_commands_default_permissions__: Optional[Permissions]
 
     def __new__(
         cls,
@@ -83,6 +85,8 @@ class CommandMeta(type, meta):
         guild: Optional[Snowflake] = MISSING,
         guilds: Sequence[Snowflake] = MISSING,
         parent: Optional[Group] = MISSING,
+        guild_only: bool = MISSING,
+        default_permissions: Optional[Permissions] = MISSING,
     ) -> Union[_Command, ContextMenu]:
         if not bases or bases == (Command, Generic):  # This metaclass should only operate on subclasses
             return super().__new__(cls, classname, bases, attrs)
@@ -142,6 +146,10 @@ class CommandMeta(type, meta):
             attrs['__discord_app_commands_param_choices__'] = extra_choices
         if autocompleted:
             attrs['__discord_app_commands_param_autocompleted__'] = autocompleted
+        if guild_only is not MISSING:
+            attrs['__discord_app_commands_guild_only__'] = guild_only
+        if default_permissions is not MISSING:
+            attrs['__discord_app_commands_default_permissions__'] = default_permissions
 
         # After all of that, we turn the class into a Command
         sub = super().__new__(cls, classname, bases, attrs)

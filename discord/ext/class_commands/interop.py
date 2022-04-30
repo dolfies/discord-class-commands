@@ -160,6 +160,16 @@ def _inject_parameters(cls: Type[_Command], command: AppCommand) -> None:
     else:
         _populate_autocomplete(result, autocomplete.copy())
 
+    try:
+        command.default_permissions = cls.__discord_app_commands_default_permissions__
+    except AttributeError:
+        pass
+
+    try:
+        command.guild_only = cls.__discord_app_commands_guild_only__
+    except AttributeError:
+        pass
+
     command._params = result
 
 
