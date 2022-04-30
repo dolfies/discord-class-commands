@@ -11,3 +11,4 @@ An extension module to facilitate class-based creation of application commands.
 __version__ = '0.1.0'
 
 from .commands import *
+from .option import *

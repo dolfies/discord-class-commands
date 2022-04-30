@@ -24,7 +24,6 @@ DEALINGS IN THE SOFTWARE.
 
 from __future__ import annotations
 
-import inspect
 import traceback
 from types import FunctionType
 
@@ -44,6 +43,7 @@ from discord.app_commands.commands import _shorten, Command as _Command, Context
 from discord.utils import MISSING
 
 from .interop import _generate_callback, _inject_class_based_information
+from .option import _Option, ParameterData
 
 if TYPE_CHECKING:
     from discord import AllowedMentions, File, Embed
@@ -51,77 +51,9 @@ if TYPE_CHECKING:
     from discord.abc import Snowflake
     from discord.app_commands.commands import AppCommandError, Choice, ChoiceT, Group
 
-__all__ = ('UserCommand', 'MessageCommand', 'SlashCommand', 'Option')
+__all__ = ('UserCommand', 'MessageCommand', 'SlashCommand')
 
 CommandT = TypeVar('CommandT', bound='Command')
-_empty = inspect.Parameter.empty
-
-if TYPE_CHECKING:
-
-    def Option(
-        default: Any = MISSING,
-        name: str = MISSING,
-        description: str = MISSING,
-        *,
-        autocomplete: bool = MISSING,
-        choices: List[Choice[ChoiceT]] = MISSING,
-    ) -> Any:
-        ...
-
-else:
-
-    class Option:
-        """Represents a command parameter.
-
-        Attributes
-        ----------
-        default: :class:`Any`
-            The default value for the option if the option is optional.
-        name: :class:`str`
-            The overriden name of the option.
-        description: :class:`str`
-            The description of the option.
-
-            .. note::
-                If not explicitly overrided here, the description is parsed
-                from the class docstring. Else, it defaults to "…".
-        autocomplete: :class:`bool`
-            Whether or not the parameter should be autocompleted.
-        choices: List[:class:`~discord.app_commands.Choice`]
-            The choices for the parameter.
-
-            .. note::
-                This is not the only way to provide choices to a command.
-                There are two more ergonomic ways of doing this, using a
-                :obj:`typing.Literal` annotation or a :class:`enum.Enum`.
-        """
-
-        __slots__ = ('autocomplete', 'default', 'description', 'name', 'choices')
-
-        def __init__(
-            self,
-            default: Any = MISSING,
-            name: str = MISSING,
-            description: str = MISSING,
-            *,
-            autocomplete: bool = False,
-            choices: List[Choice[ChoiceT]] = MISSING,
-        ) -> None:
-            self.description = description
-            self.default = default
-            self.autocomplete = autocomplete
-            self.name = name
-            self.choices = choices
-
-
-class ParameterData(inspect.Parameter):
-    def __init__(self, name: str, default: Any = MISSING, annotation: Any = MISSING):
-        super().__init__(
-            name,
-            inspect.Parameter.POSITIONAL_OR_KEYWORD,
-            default=default if default is not MISSING else _empty,
-            annotation=annotation if annotation is not MISSING else _empty,
-        )
 
 
 class _CommandMeta(type):
@@ -167,7 +99,7 @@ class _CommandMeta(type):
             annotation = annotations.get(k, 'str')
             autocomplete = False
             _name = default = description = choices = MISSING
-            if isinstance(v, Option):
+            if isinstance(v, _Option):
                 _name = v.name
                 default = v.default
                 description = v.description
