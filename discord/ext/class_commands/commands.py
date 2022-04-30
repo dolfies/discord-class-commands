@@ -197,6 +197,39 @@ class Command(metaclass=CommandMeta):
         This means that relying on the state of this class to be
         the same between command invocations would not work as expected.
 
+    Class parameters
+    ----------------
+    name: :class:`str`
+        The name of the group. If not given, it defaults to a lower-case
+        kebab-case version of the class name.
+    description: :class:`str`
+        The description of the group. This shows up in the UI to describe
+        the group. If not given, it defaults to the docstring of the
+        class shortened to 100 characters.
+
+        Due to a Discord limitation, context menu commands cannot have descriptions.
+    guild: :class:`~discord.abc.Snowflake`
+        The guild to restrict the command to.
+    guilds: List[:class:`~discord.abc.Snowflake`]
+        A list of guilds to restrict the command to.
+        Cannot be used with ``guild``.
+    default_permissions: Optional[:class:`~discord.Permissions`]
+        The default permissions that can execute this group on Discord. Note
+        that server administrators can override this value in the client.
+        Setting an empty permissions field will disallow anyone except server
+        administrators from using the command in a guild.
+
+        Due to a Discord limitation, this does not work on subcommands.
+    guild_only: :class:`bool`
+        Whether the group should only be usable in guild contexts.
+        Defaults to ``False``.
+
+        Due to a Discord limitation, this does not work on subcommands.
+    parent: :class:`Group`
+        The command's parent.
+
+        Due to a Discord limitation, context menu commands cannot have parents.
+
     Attributes
     -----------
     interaction: :class:`~discord.Interaction`
@@ -376,6 +409,36 @@ class SlashCommand(Command, Generic[CommandT]):
 
         This means that relying on the state of this class to be
         the same between command invocations would not work as expected.
+
+    Class parameters
+    ----------------
+    name: :class:`str`
+        The name of the group. If not given, it defaults to a lower-case
+        kebab-case version of the class name.
+    description: :class:`str`
+        The description of the group. This shows up in the UI to describe
+        the group. If not given, it defaults to the docstring of the
+        class shortened to 100 characters.
+    guild: :class:`~discord.abc.Snowflake`
+        The guild to restrict the command to.
+    guilds: List[:class:`~discord.abc.Snowflake`]
+        A list of guilds to restrict the command to.
+        Cannot be used with ``guild``.
+    default_permissions: Optional[:class:`~discord.Permissions`]
+        The default permissions that can execute this group on Discord. Note
+        that server administrators can override this value in the client.
+        Setting an empty permissions field will disallow anyone except server
+        administrators from using the command in a guild.
+
+        Due to a Discord limitation, this does not work on subcommands.
+    guild_only: :class:`bool`
+        Whether the group should only be usable in guild contexts.
+        Defaults to ``False``.
+
+        Due to a Discord limitation, this does not work on subcommands.
+    parent: :class:`Group`
+        The command's parent.
+
     """
 
     __discord_app_commands_type__ = AppCommandType.chat_input
@@ -418,6 +481,29 @@ class UserCommand(Command, Generic[CommandT]):
         This means that relying on the state of this class to be
         the same between command invocations would not work as expected.
 
+    Class parameters
+    ----------------
+    name: :class:`str`
+        The name of the group. If not given, it defaults to a lower-case
+        kebab-case version of the class name.
+    guild: :class:`~discord.abc.Snowflake`
+        The guild to restrict the command to.
+    guilds: List[:class:`~discord.abc.Snowflake`]
+        A list of guilds to restrict the command to.
+        Cannot be used with ``guild``.
+    default_permissions: Optional[:class:`~discord.Permissions`]
+        The default permissions that can execute this group on Discord. Note
+        that server administrators can override this value in the client.
+        Setting an empty permissions field will disallow anyone except server
+        administrators from using the command in a guild.
+
+        Due to a Discord limitation, this does not work on subcommands.
+    guild_only: :class:`bool`
+        Whether the group should only be usable in guild contexts.
+        Defaults to ``False``.
+
+        Due to a Discord limitation, this does not work on subcommands.
+
     Attributes
     -----------
     target: Union[:class:`~discord.abc.User`, :class:`~discord.Member`]
@@ -437,6 +523,29 @@ class MessageCommand(Command, Generic[CommandT]):
 
         This means that relying on the state of this class to be
         the same between command invocations would not work as expected.
+
+    Class parameters
+    ----------------
+    name: :class:`str`
+        The name of the group. If not given, it defaults to a lower-case
+        kebab-case version of the class name.
+    guild: :class:`~discord.abc.Snowflake`
+        The guild to restrict the command to.
+    guilds: List[:class:`~discord.abc.Snowflake`]
+        A list of guilds to restrict the command to.
+        Cannot be used with ``guild``.
+    default_permissions: Optional[:class:`~discord.Permissions`]
+        The default permissions that can execute this group on Discord. Note
+        that server administrators can override this value in the client.
+        Setting an empty permissions field will disallow anyone except server
+        administrators from using the command in a guild.
+
+        Due to a Discord limitation, this does not work on subcommands.
+    guild_only: :class:`bool`
+        Whether the group should only be usable in guild contexts.
+        Defaults to ``False``.
+
+        Due to a Discord limitation, this does not work on subcommands.
 
     Attributes
     -----------
