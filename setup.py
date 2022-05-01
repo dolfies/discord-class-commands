@@ -1,7 +1,6 @@
 from setuptools import setup
 import re
 
-requirements = []
 with open('requirements.txt') as f:
   requirements = f.read().splitlines()
 
