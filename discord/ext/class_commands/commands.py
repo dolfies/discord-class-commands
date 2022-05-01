@@ -163,7 +163,7 @@ class CommandMeta(type, meta):
                     description = _shorten(docstring)
 
             command = _Command(
-                name=name if name is not MISSING else classname,
+                name=name if name is not MISSING else classname.lower(),
                 description=description,
                 callback=_generate_callback(sub, fake=True),  # type: ignore # The cls type is correct
                 parent=parent or None,
