@@ -51,7 +51,7 @@ if TYPE_CHECKING:
     from discord.abc import Snowflake
     from discord.app_commands.commands import AppCommandError, Choice, ChoiceT, Group
 
-__all__ = ('UserCommand', 'MessageCommand', 'SlashCommand')
+__all__ = ('Command', 'UserCommand', 'MessageCommand', 'SlashCommand')
 
 CommandT = TypeVar('CommandT', bound='Command')
 
