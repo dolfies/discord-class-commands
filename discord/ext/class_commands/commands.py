@@ -197,8 +197,8 @@ class Command(metaclass=CommandMeta):
         This means that relying on the state of this class to be
         the same between command invocations would not work as expected.
 
-    Class parameters
-    ----------------
+    Parameters
+    -----------
     name: :class:`str`
         The name of the group. If not given, it defaults to a lower-case
         kebab-case version of the class name.
@@ -422,8 +422,10 @@ class SlashCommand(Command, Generic[CommandT]):
         This means that relying on the state of this class to be
         the same between command invocations would not work as expected.
 
-    Class parameters
-    ----------------
+    Parameters here refer to class parameters.
+
+    Parameters
+    -----------
     name: :class:`str`
         The name of the group. If not given, it defaults to a lower-case
         kebab-case version of the class name.
@@ -493,8 +495,10 @@ class UserCommand(Command, Generic[CommandT]):
         This means that relying on the state of this class to be
         the same between command invocations would not work as expected.
 
-    Class parameters
-    ----------------
+    Parameters here refer to class parameters.
+
+    Parameters
+    -----------
     name: :class:`str`
         The name of the group. If not given, it defaults to a lower-case
         kebab-case version of the class name.
@@ -536,8 +540,10 @@ class MessageCommand(Command, Generic[CommandT]):
         This means that relying on the state of this class to be
         the same between command invocations would not work as expected.
 
-    Class parameters
-    ----------------
+    Parameters here refer to class parameters.
+
+    Parameters
+    -----------
     name: :class:`str`
         The name of the group. If not given, it defaults to a lower-case
         kebab-case version of the class name.
