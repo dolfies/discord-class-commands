@@ -1,4 +1,4 @@
-.. currentmodule:: discord
+.. currentmodule:: discord.ext.class_commands
 
 API Reference
 ===============

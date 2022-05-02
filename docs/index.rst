@@ -3,8 +3,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to discord.py
-===========================
+Welcome to discord-class-commands
+==================================
 
 .. image:: /images/snake.svg
 .. image:: /images/snake_dark.svg
@@ -24,7 +24,7 @@ Getting started
 Is this your first time using the library? This is the place to get started!
 
 - **First steps:** :doc:`intro` | :doc:`quickstart`
-- **Working with discord.py:** `discord.py documentation <https://discordpy.readthedocs.io>`_
+- **Working with discord.py:** :doc:`discord.py documentation <discord:index>`
 - **Examples:** Many examples are available in the :resource:`repository <examples>`.
 
 Getting help

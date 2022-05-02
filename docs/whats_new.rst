@@ -1,4 +1,4 @@
-.. currentmodule:: discord-class-commands
+.. currentmodule:: discord.ext.class_commands
 
 .. _whats_new:
 

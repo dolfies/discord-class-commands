@@ -10,6 +10,15 @@ with open('discord/ext/class_commands/__init__.py') as f:
 with open('README.rst') as f:
     readme = f.read()
 
+extras_require = {
+    'docs': [
+        'sphinx==4.4.0',
+        'sphinxcontrib_trio==1.1.2',
+        'sphinxcontrib-websupport',
+        'typing-extensions',
+    ],
+}
+
 setup(name='discord-class-commands',
       author='iDevision',
       url='https://github.com/iDevision/discord-class-commands',
@@ -25,6 +34,7 @@ setup(name='discord-class-commands',
       long_description_content_type="text/x-rst",
       include_package_data=True,
       install_requires=requirements,
+      extras_require=extras_require,
       python_requires='>=3.8.0',
       classifiers=[
         'License :: OSI Approved :: MIT License',

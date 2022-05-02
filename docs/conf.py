@@ -57,6 +57,7 @@ extlinks = {
 intersphinx_mapping = {
   'py': ('https://docs.python.org/3', None),
   'aio': ('https://docs.aiohttp.org/en/stable/', None),
+  'discord': ('https://discordpy.readthedocs.io/en/latest/', None),
 }
 
 rst_prolog = """
@@ -88,8 +89,7 @@ copyright = '2022-present, iDevision'
 #
 # The short X.Y version.
 
-version = ''
-with open('../discord/__init__.py') as f:
+with open('../discord/ext/class_commands/__init__.py') as f:
     version = re.search(r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]', f.read(), re.MULTILINE).group(1)
 
 # The full version, including alpha/beta/rc tags.

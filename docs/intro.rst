@@ -1,6 +1,6 @@
 :orphan:
 
-.. currentmodule:: discord-class-commands
+.. currentmodule:: discord.ext.class_commands
 
 .. _intro:
 

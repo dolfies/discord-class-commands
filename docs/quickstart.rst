@@ -18,6 +18,7 @@ Let's make a bot with a simple ping command in a test guild and walk you through
 It looks something like this:
 
 .. code-block:: python3
+
     import discord
     from discord.ext import class_commands
 
@@ -44,7 +45,7 @@ It looks something like this:
 Let's name this file ``example_command.py``. Make sure not to name it ``discord.py`` as that'll conflict
 with the library.
 
-There's a lot going on here. If you don't know how to use discord.py, you should read `their documentation <https://discordpy.readthedocs.io>`_
+There's a lot going on here. If you don't know how to use discord.py, you should read :doc:`their documentation <discord:index>`
 
 1. First we just import the ext, if this raises a `ModuleNotFoundError` or `ImportError`
    then head on over to :ref:`installing` section to properly install.
