@@ -46,6 +46,8 @@ To install the development version, do the following:
     $ cd discord.py
     $ python3 -m pip install -U .
 
+This extension depends on version 2.0 of discord.py or a compatible fork.
+
 Quick Example
 --------------
 
