@@ -133,6 +133,7 @@ def _inject_parameters(cls: Type[_Command], command: AppCommand) -> None:
         resolved = resolve_annotation(parameter.annotation, globalns, globalns, cache)
         param = annotation_to_parameter(resolved, parameter)
         parameters.append(param)
+        setattr(cls, parameter.name, None)  # Default all attributes to None for autocomplete purposes
 
     values = sorted(parameters, key=lambda a: a.required, reverse=True)
     result = {v.name: v for v in values}
