@@ -226,7 +226,7 @@ class Command(metaclass=CommandMeta):
         Defaults to ``False``.
 
         Due to a Discord limitation, this does not work on subcommands.
-    parent: :class:`Group`
+    parent: :class:`~discord.app_commands.Group`
         The command's parent.
 
         Due to a Discord limitation, context menu commands cannot have parents.
@@ -244,7 +244,7 @@ class Command(metaclass=CommandMeta):
 
         This method is called when the command is used.
 
-        All the parameters and :attr:`interaction` will be available at this point.
+        All the parameters and :attr:`.interaction` will be available at this point.
         """
         pass
 
@@ -256,7 +256,7 @@ class Command(metaclass=CommandMeta):
         If it returns a ``False``\-like value then during invocation a
         :exc:`~discord.app_commands.CheckFailure` exception is raised and sent to the appropriate error handlers.
 
-        :attr:`interaction` will be available at this point.
+        :attr:`.interaction` will be available at this point.
         """
         return True
 
@@ -268,7 +268,7 @@ class Command(metaclass=CommandMeta):
         By default this prints to :data:`sys.stderr` however it could be
         overridden to have a different implementation.
 
-        :attr:`interaction` will be available at this point.
+        :attr:`.interaction` will be available at this point.
 
         Parameters
         -----------
@@ -405,9 +405,9 @@ class Command(metaclass=CommandMeta):
 
         Raises
         -------
-        HTTPException
+        ~discord.HTTPException
             Deferring the interaction failed.
-        InteractionResponded
+        ~discord.InteractionResponded
             This interaction has already been responded to before.
         """
         await self.interaction.response.defer(ephemeral=ephemeral)
@@ -451,7 +451,7 @@ class SlashCommand(Command, Generic[CommandT]):
         Defaults to ``False``.
 
         Due to a Discord limitation, this does not work on subcommands.
-    parent: :class:`Group`
+    parent: :class:`~discord.app_commands.Group`
         The command's parent.
 
     """
@@ -463,7 +463,7 @@ class SlashCommand(Command, Generic[CommandT]):
 
         This method is called when an autocomplete interaction is triggered.
 
-        Some of the parameters, :attr:`interaction`, and :attr:`id` will be available at this point.
+        Some of the parameters and :attr:`.interaction` will be available at this point.
 
         .. note::
 

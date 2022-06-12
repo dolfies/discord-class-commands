@@ -7,7 +7,7 @@ The following section outlines the API of discord-class-commands.
 
 .. note::
 
-    This module requires the :py:mod:`discord` or a compatible fork to be installed.  Check out :ref:`installing` for more info.
+    This module requires the `discord.py` library to be installed.  Check out :ref:`installing` for more info.
 
 Version Related Info
 ---------------------
@@ -41,7 +41,7 @@ Command
 
 .. note::
 
-    This class is not the same as discord.py's `Command` class.
+    This class is not the same as discord.py's :class:`discord.app_commands.Command`.
 
 SlashCommand
 ~~~~~~~~~~~~~
