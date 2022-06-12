@@ -88,3 +88,4 @@ Option
 
 .. autoclass:: Option
     :members:
+    :inherited-members:
