@@ -2,7 +2,7 @@ from setuptools import setup
 import re
 
 with open('requirements.txt') as f:
-  requirements = f.read().splitlines()
+    requirements = f.read().splitlines()
 
 with open('discord/ext/class_commands/__init__.py') as f:
     version = re.search(r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]', f.read(), re.MULTILINE).group(1)
@@ -19,24 +19,25 @@ extras_require = {
     ],
 }
 
-setup(name='discord-class-commands',
-      author='iDevision',
-      url='https://github.com/iDevision/discord-class-commands',
-      project_urls={
+setup(
+    name='discord-class-commands',
+    author='Dolfies',
+    url='https://github.com/dolfies/discord-class-commands',
+    project_urls={
         'Documentation': 'https://example.com/',
-        'Issue tracker': 'https://github.com/iDevision/discord-class-commands/issues',
-      },
-      version=version,
-      packages=['discord.ext.class_commands'],
-      license='MIT',
-      description='A discord.py extension module to facilitate class-based creation of application commands.',
-      long_description=readme,
-      long_description_content_type="text/x-rst",
-      include_package_data=True,
-      install_requires=requirements,
-      extras_require=extras_require,
-      python_requires='>=3.8.0',
-      classifiers=[
+        'Issue tracker': 'https://github.com/Dolfies/discord-class-commands/issues',
+    },
+    version=version,
+    packages=['discord.ext.class_commands'],
+    license='MIT',
+    description='A discord.py extension module to facilitate class-based creation of application commands.',
+    long_description=readme,
+    long_description_content_type="text/x-rst",
+    include_package_data=True,
+    install_requires=requirements,
+    extras_require=extras_require,
+    python_requires='>=3.8.0',
+    classifiers=[
         'License :: OSI Approved :: MIT License',
         'Intended Audience :: Developers',
         'Natural Language :: English',
@@ -49,5 +50,5 @@ setup(name='discord-class-commands',
         'Topic :: Software Development :: Libraries :: Python Modules',
         'Topic :: Utilities',
         'Typing :: Typed',
-      ]
+    ],
 )

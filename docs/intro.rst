@@ -16,7 +16,7 @@ Prerequisites
 discord-class-commands works with Python 3.8 or higher. Support for earlier versions of Python
 is not provided. Python 2.7 or lower is not supported. Python 3.7 or lower is not supported.
 
-The extension requires v2.0 or higher of discord.py (or a discord.py-compatible fork) to be installed.
+The extension requires v2.0 or higher of discord.py to be installed.
 
 
 .. _installing:

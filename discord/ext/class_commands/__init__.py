@@ -4,7 +4,7 @@ discord.ext.class_commands
 
 An extension module to facilitate class-based creation of application commands.
 
-:copyright: (c) 2022-present iDevision
+:copyright: (c) 2022-present Dolfies
 :license: MIT, see LICENSE for more details.
 """
 

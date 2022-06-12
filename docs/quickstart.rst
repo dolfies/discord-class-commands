@@ -2,7 +2,7 @@
 
 .. _quickstart:
 
-.. currentmodule:: discord-class-commands
+.. currentmodule:: discord.ext.class_commands
 
 Quickstart
 ============
@@ -24,7 +24,7 @@ It looks something like this:
 
     test_guild = discord.Object(id=...)  # Replace with your test guild ID
 
-    client = discord.Client(intents=discord.Intents.default(), application_id=...)  # Replace with your bot's application ID
+    client = discord.Client(intents=discord.Intents.default())
     tree = discord.app_commands.CommandTree(client)
 
     @client.event
@@ -50,7 +50,7 @@ There's a lot going on here. If you don't know how to use discord.py, you should
 1. First we just import the ext, if this raises a `ModuleNotFoundError` or `ImportError`
    then head on over to :ref:`installing` section to properly install.
 
-2. Next we create a new command by subclassing the :class:`~discord.ext.commands.SlashCommand` class, and set a description.
+2. Next we create a new command by subclassing the :class:`~discord.ext.class_commands.SlashCommand` class, and set a description.
    The name defaults to a lower-case version of the class name.
 
 3. We then define a callback within the command class, which is where we'll respond to our command.

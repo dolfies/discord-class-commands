@@ -13,7 +13,11 @@ discord-class-commands
 
 An extension module for discord.py that facilitates class-based creation of Discord application commands.
 
-Credits to discord.py for the docs and various snippets of code.
+Credits
+-------
+
+- `discord.py <https://github.com/Rapptz/discord.py>`_: Docs and various code snippets.
+- `IAmTomahawkx <https://github.com/IAmTomahawkx>`_: Initial idea and design.
 
 Key Features
 -------------
@@ -42,7 +46,7 @@ To install the development version, do the following:
 
 .. code:: sh
 
-    $ git clone https://github.com/iDevision/discord-class-commands
+    $ git clone https://github.com/dolfies/discord-class-commands
     $ cd discord.py
     $ python3 -m pip install -U .
 
@@ -56,7 +60,7 @@ Quick Example
     import discord
     from discord.ext import class_commands
 
-    client = discord.Client(intents=discord.Intents.default(), application_id=...)
+    client = discord.Client(intents=discord.Intents.default())
     tree = discord.app_commands.CommandTree(client)
 
     @client.event
