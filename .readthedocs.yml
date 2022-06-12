@@ -16,3 +16,4 @@ python:
       path: .
       extra_requirements:
         - docs
+        - discord-py @ git+https://github.com/rapptz/discord.py.git@master

@@ -26,7 +26,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip setuptools wheel
+          python -m pip install --upgrade pip setuptools wheel git+https://github.com/rapptz/discord.py.git@master
           pip install -U -r requirements.txt
       - name: Build distributions
         run: |
@@ -39,7 +39,7 @@ jobs:
 
       - name: Install package
         run: |
-          pip install -e .[docs,speed,voice]
+          pip install -e .[docs]
       - name: Build docs
         shell: bash
         run: |

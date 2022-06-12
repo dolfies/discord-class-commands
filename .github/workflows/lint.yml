@@ -27,7 +27,7 @@ jobs:
       - name: Install dependencies
         id: install-deps
         run: |
-          python -m pip install --upgrade pip setuptools wheel black
+          python -m pip install --upgrade pip setuptools wheel black git+https://github.com/rapptz/discord.py.git@master
           pip install -U -r requirements.txt
       - name: Setup node.js
         uses: actions/setup-node@v2
