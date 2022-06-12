@@ -81,7 +81,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'discord-class-commands'
-copyright = '2022-present, Dolfies'
+copyright = '2015-present, Rapptz; 2022-present, Dolfies'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
