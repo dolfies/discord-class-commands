@@ -52,31 +52,6 @@ class ParameterData(inspect.Parameter):  # This is a fake inspect.Parameter desi
 
 
 class _Option:
-    """Represents a command parameter.
-
-    Attributes
-    ----------
-    default: :class:`Any`
-        The default value for the option if the option is optional.
-    name: :class:`str`
-        The overriden name of the option.
-    description: :class:`str`
-        The description of the option.
-
-        .. note::
-            If not explicitly overrided here, the description is parsed
-            from the class docstring. Else, it defaults to "…".
-    autocomplete: :class:`bool`
-        Whether or not the parameter should be autocompleted.
-    choices: List[:class:`~discord.app_commands.Choice`]
-        The choices for the parameter.
-
-        .. note::
-            This is not the only way to provide choices to a command.
-            There are two more ergonomic ways of doing this, using a
-            :obj:`typing.Literal` annotation or a :class:`enum.Enum`.
-    """
-
     __slots__ = ('autocomplete', 'default', 'description', 'name', 'choices')
 
     def __init__(
@@ -108,4 +83,31 @@ if TYPE_CHECKING:
         ...
 
 else:
-    Option = _Option
+
+    class Option(_Option):
+        """Represents a command parameter.
+
+        Attributes
+        ----------
+        default: :class:`Any`
+            The default value for the option if the option is optional.
+        name: :class:`str`
+            The overriden name of the option.
+        description: :class:`str`
+            The description of the option.
+
+            .. note::
+                If not explicitly overrided here, the description is parsed
+                from the class docstring. Else, it defaults to "…".
+        autocomplete: :class:`bool`
+            Whether or not the parameter should be autocompleted.
+        choices: List[:class:`~discord.app_commands.Choice`]
+            The choices for the parameter.
+
+            .. note::
+                This is not the only way to provide choices to a command.
+                There are two more ergonomic ways of doing this, using a
+                :obj:`typing.Literal` annotation or a :class:`enum.Enum`.
+        """
+
+        pass
