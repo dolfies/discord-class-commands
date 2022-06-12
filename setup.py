@@ -25,7 +25,7 @@ setup(
     url='https://github.com/dolfies/discord-class-commands',
     project_urls={
         'Documentation': 'https://example.com/',
-        'Issue tracker': 'https://github.com/Dolfies/discord-class-commands/issues',
+        'Issue tracker': 'https://github.com/dolfies/discord-class-commands/issues',
     },
     version=version,
     packages=['discord.ext.class_commands'],
