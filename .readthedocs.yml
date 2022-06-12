@@ -3,6 +3,9 @@ formats: []
 
 build:
   image: latest
+  jobs:
+    pre_create_environment:
+      - pip install git+https://github.com/Rapptz/discord.py.git@master # Unfortunate
 
 sphinx:
   configuration: docs/conf.py
@@ -16,4 +19,3 @@ python:
       path: .
       extra_requirements:
         - docs
-        - discord-py @ git+https://github.com/rapptz/discord.py.git@master
