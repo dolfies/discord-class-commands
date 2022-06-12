@@ -4,7 +4,7 @@ formats: []
 build:
   image: latest
   jobs:
-    pre_create_environment:
+    post_install:
       - pip install git+https://github.com/Rapptz/discord.py.git@master # Unfortunate
 
 sphinx:
