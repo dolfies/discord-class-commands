@@ -2,10 +2,12 @@ version: 2
 formats: []
 
 build:
-  image: latest
+  os: ubuntu-22.04
   jobs:
     post_install:
       - pip install git+https://github.com/Rapptz/discord.py.git@master # Unfortunate
+  tools:
+    python: "3.8"
 
 sphinx:
   configuration: docs/conf.py
@@ -13,7 +15,6 @@ sphinx:
   builder: html
 
 python:
-  version: 3.8
   install:
     - method: pip
       path: .
