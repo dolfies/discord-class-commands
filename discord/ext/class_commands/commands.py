@@ -88,6 +88,7 @@ class CommandMeta(type, meta):
         parent: Optional[Group] = MISSING,
         guild_only: bool = MISSING,
         default_permissions: Optional[Permissions] = MISSING,
+        nsfw: bool = False,
     ) -> Union[_Command, ContextMenu]:
         if not bases or bases == (Command, Generic):  # This metaclass should only operate on subclasses
             return super().__new__(cls, classname, bases, attrs)
@@ -169,6 +170,7 @@ class CommandMeta(type, meta):
                 callback=_generate_callback(sub, fake=True),  # type: ignore # The cls type is correct
                 parent=parent or None,
                 guild_ids=guild_ids,
+                nsfw=nsfw,
             )
         else:
             if description or parent:
@@ -177,6 +179,7 @@ class CommandMeta(type, meta):
                 name=name if name is not MISSING else classname,
                 callback=_generate_callback(sub),  # type: ignore # The cls type is correct
                 guild_ids=guild_ids,
+                nsfw=nsfw,
             )
 
         _inject_class_based_information(sub, command)
@@ -230,6 +233,13 @@ class Command(metaclass=CommandMeta):
         The command's parent.
 
         Due to a Discord limitation, context menu commands cannot have parents.
+    nsfw: :class:`bool`
+        Whether the command is NSFW and should only work in NSFW channels. Defaults to ``False``.
+
+        Due to a Discord limitation, this does not work on subcommands.
+
+        .. versionadded:: 1.1
+
 
     Attributes
     -----------
